@@ -17,7 +17,6 @@
       --r: clamp(110px, 20vmin, 260px);
       --ax: 62vw; --ay: 38vh;
       --bx: 30vw; --by: 30vh;
-      --px: 0px; --py: 0px;
     }
 
     * { box-sizing: border-box; margin: 0; }
@@ -40,22 +39,18 @@
 
     .layer {
       position: absolute;
-      inset: -3%;
+      inset: 0;
       background: url(bg-1600.jpg) center / cover no-repeat;
-      transform: translate3d(var(--px), var(--py), 0);
-      will-change: transform;
     }
 
     @media (max-width: 700px) {
       .layer { background-image: url(bg-900.jpg); }
     }
 
-    .layer.quiet {
-      filter: grayscale(1) brightness(1.08) contrast(0.92);
-    }
-
-    /* Two soft lenses let the color through. The gradients union by default. */
-    .layer.color {
+    /* Two soft lenses tint the photo green. The gradients union by default. */
+    .layer.tint {
+      background: #35D07A;
+      mix-blend-mode: color;
       -webkit-mask-image:
         radial-gradient(circle var(--r) at var(--ax) var(--ay), #000 72%, transparent 100%),
         radial-gradient(circle var(--r) at var(--bx) var(--by), #000 72%, transparent 100%);
@@ -119,15 +114,14 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .layer.quiet { display: none; }
-      .layer.color { -webkit-mask-image: none; mask-image: none; }
+      .layer.tint { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="field" aria-hidden="true">
-    <div class="layer quiet"></div>
-    <div class="layer color"></div>
+    <div class="layer photo"></div>
+    <div class="layer tint"></div>
   </div>
 
   <main>
@@ -182,9 +176,6 @@
         root.setProperty('--ay', a.y + 'px');
         root.setProperty('--bx', b.x + 'px');
         root.setProperty('--by', b.y + 'px');
-        // The photo leans slightly away from the pointer.
-        root.setProperty('--px', ((w / 2 - a.x) / w * 24) + 'px');
-        root.setProperty('--py', ((h / 2 - a.y) / h * 24) + 'px');
         requestAnimationFrame(tick);
       }
       tick();
