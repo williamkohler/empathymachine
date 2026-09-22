@@ -11,12 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --paper: #ECEFF7;
       --ink: #1B1F3B;
-      --ink-soft: #4A4F73;
-      --rose: #FF6B8A;
+      --ink-soft: #3A3F66;
       --cobalt: #3D5AF1;
-      --circle: clamp(180px, 34vmin, 420px);
+      --r: clamp(110px, 20vmin, 260px);
+      --ax: 62vw; --ay: 38vh;
+      --bx: 30vw; --by: 30vh;
+      --px: 0px; --py: 0px;
     }
 
     * { box-sizing: border-box; margin: 0; }
@@ -24,7 +25,7 @@
     html, body { height: 100%; }
 
     body {
-      background: var(--paper);
+      background: #D9D3E3;
       color: var(--ink);
       font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
       text-transform: uppercase;
@@ -34,23 +35,34 @@
     .field {
       position: fixed;
       inset: 0;
-      isolation: isolate;
+      overflow: hidden;
     }
 
-    .circle {
+    .layer {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: var(--circle);
-      height: var(--circle);
-      margin: calc(var(--circle) / -2) 0 0 calc(var(--circle) / -2);
-      border-radius: 50%;
-      mix-blend-mode: multiply;
+      inset: -3%;
+      background: url(bg-1600.jpg) center / cover no-repeat;
+      transform: translate3d(var(--px), var(--py), 0);
       will-change: transform;
     }
 
-    .circle.you { background: var(--rose); }
-    .circle.other { background: var(--cobalt); }
+    @media (max-width: 700px) {
+      .layer { background-image: url(bg-900.jpg); }
+    }
+
+    .layer.quiet {
+      filter: grayscale(1) brightness(1.08) contrast(0.92);
+    }
+
+    /* Two soft lenses let the color through. The gradients union by default. */
+    .layer.color {
+      -webkit-mask-image:
+        radial-gradient(circle var(--r) at var(--ax) var(--ay), #000 72%, transparent 100%),
+        radial-gradient(circle var(--r) at var(--bx) var(--by), #000 72%, transparent 100%);
+      mask-image:
+        radial-gradient(circle var(--r) at var(--ax) var(--ay), #000 72%, transparent 100%),
+        radial-gradient(circle var(--r) at var(--bx) var(--by), #000 72%, transparent 100%);
+    }
 
     main {
       position: relative;
@@ -67,7 +79,6 @@
       font-weight: 800;
       line-height: 0.95;
       letter-spacing: -0.04em;
-      mix-blend-mode: multiply;
     }
 
     p {
@@ -95,12 +106,28 @@
       outline-offset: 4px;
       border-radius: 2px;
     }
+
+    .credit {
+      position: fixed;
+      right: clamp(16px, 2vw, 28px);
+      bottom: clamp(14px, 1.6vw, 22px);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      text-decoration: none;
+      opacity: 0.75;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .layer.quiet { display: none; }
+      .layer.color { -webkit-mask-image: none; mask-image: none; }
+    }
   </style>
 </head>
 <body>
   <div class="field" aria-hidden="true">
-    <div class="circle other"></div>
-    <div class="circle you"></div>
+    <div class="layer quiet"></div>
+    <div class="layer color"></div>
   </div>
 
   <main>
@@ -108,18 +135,24 @@
     <p><a href="mailto:contact@empathymachine.online">contact@empathymachine.online</a></p>
   </main>
 
+  <a class="credit" href="https://unsplash.com/photos/ruJm3dBXCqw" target="_blank" rel="noopener">Photo: Pawel Czerwinski</a>
+
   <script>
     (function () {
-      var you = document.querySelector('.circle.you');
-      var other = document.querySelector('.circle.other');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var root = document.documentElement.style;
       var w = window.innerWidth, h = window.innerHeight;
       var target = { x: w * 0.62, y: h * 0.38 };
       var a = { x: target.x, y: target.y };
       var b = { x: w * 0.3, y: h * 0.3 };
-      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var r = radius();
 
-      function place(el, p) {
-        el.style.transform = 'translate3d(' + p.x + 'px,' + p.y + 'px,0)';
+      function radius() {
+        // Mirrors --r: clamp(110px, 20vmin, 260px).
+        var v = Math.min(Math.max(110, Math.min(w, h) * 0.2), 260);
+        root.setProperty('--r', v + 'px');
+        return v;
       }
 
       function point(e) {
@@ -132,28 +165,26 @@
       window.addEventListener('resize', function () {
         w = window.innerWidth;
         h = window.innerHeight;
+        r = radius();
       });
-
-      if (still) {
-        // Half-overlapped and at rest: the meeting has already happened.
-        var r = you.offsetWidth / 4;
-        place(you, { x: target.x + r, y: target.y });
-        place(other, { x: target.x - r, y: target.y });
-        return;
-      }
 
       function tick() {
         a.x += (target.x - a.x) * 0.18;
         a.y += (target.y - a.y) * 0.18;
-        // The other circle approaches slowly and stops short of full overlap.
+        // The second lens drifts toward the first and settles just short of overlapping it.
         var dx = a.x - b.x, dy = a.y - b.y;
         var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        var rest = you.offsetWidth * 0.45;
-        var pull = (dist - rest) / dist;
+        var pull = (dist - r * 0.9) / dist;
         b.x += dx * pull * 0.025;
         b.y += dy * pull * 0.025;
-        place(you, a);
-        place(other, b);
+
+        root.setProperty('--ax', a.x + 'px');
+        root.setProperty('--ay', a.y + 'px');
+        root.setProperty('--bx', b.x + 'px');
+        root.setProperty('--by', b.y + 'px');
+        // The photo leans slightly away from the pointer.
+        root.setProperty('--px', ((w / 2 - a.x) / w * 24) + 'px');
+        root.setProperty('--py', ((h / 2 - a.y) / h * 24) + 'px');
         requestAnimationFrame(tick);
       }
       tick();
