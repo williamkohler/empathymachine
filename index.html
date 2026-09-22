@@ -15,8 +15,12 @@
       --halo: 0 0 2px rgba(10, 20, 10, 0.9), 0 0 4px rgba(10, 20, 10, 0.5);
       --glow: var(--halo), 0 0 8px rgba(57, 255, 20, 0.85), 0 0 24px rgba(57, 255, 20, 0.5);
       --r: clamp(130px, 24vmin, 320px);
-      --ax: 62vw; --ay: 38vh; --arx: var(--r); --ary: var(--r);
+      --ax: 62vw; --ay: 38vh; --arx: var(--r); --ary: var(--r); --asoft: 55%;
       --bx: 30vw; --by: 30vh; --brx: var(--r); --bry: var(--r);
+      --t1x: -1px; --t1y: -1px; --t1r: 0px;
+      --t2x: -1px; --t2y: -1px; --t2r: 0px;
+      --t3x: -1px; --t3y: -1px; --t3r: 0px;
+      --t4x: -1px; --t4y: -1px; --t4r: 0px;
     }
 
     * { box-sizing: border-box; margin: 0; }
@@ -47,18 +51,27 @@
       .layer { background-image: url(bg-900.jpg); }
     }
 
-    /* Two soft lenses cut through the paint to the video underneath. The gradients union by default. */
+    /* Lenses cut through the paint to the video underneath: the pointer lens, its follower,
+       and four small comet-tail lenses that only appear at speed. The gradients union by default. */
     .layer.reel {
       background: #000;
       object-fit: cover;
       width: 100%;
       height: 100%;
       -webkit-mask-image:
-        radial-gradient(ellipse var(--arx) var(--ary) at var(--ax) var(--ay), #000 55%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.1) 95%, transparent 100%),
-        radial-gradient(ellipse var(--brx) var(--bry) at var(--bx) var(--by), #000 55%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.1) 95%, transparent 100%);
+        radial-gradient(ellipse var(--arx) var(--ary) at var(--ax) var(--ay), #000 var(--asoft), rgba(0,0,0,0.8) calc(var(--asoft) + (100% - var(--asoft)) * 0.33), rgba(0,0,0,0.4) calc(var(--asoft) + (100% - var(--asoft)) * 0.66), rgba(0,0,0,0.1) calc(var(--asoft) + (100% - var(--asoft)) * 0.88), transparent 100%),
+        radial-gradient(ellipse var(--brx) var(--bry) at var(--bx) var(--by), #000 55%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.1) 95%, transparent 100%),
+        radial-gradient(circle var(--t1r) at var(--t1x) var(--t1y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%),
+        radial-gradient(circle var(--t2r) at var(--t2x) var(--t2y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%),
+        radial-gradient(circle var(--t3r) at var(--t3x) var(--t3y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%),
+        radial-gradient(circle var(--t4r) at var(--t4x) var(--t4y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%);
       mask-image:
-        radial-gradient(ellipse var(--arx) var(--ary) at var(--ax) var(--ay), #000 55%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.1) 95%, transparent 100%),
-        radial-gradient(ellipse var(--brx) var(--bry) at var(--bx) var(--by), #000 55%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.1) 95%, transparent 100%);
+        radial-gradient(ellipse var(--arx) var(--ary) at var(--ax) var(--ay), #000 var(--asoft), rgba(0,0,0,0.8) calc(var(--asoft) + (100% - var(--asoft)) * 0.33), rgba(0,0,0,0.4) calc(var(--asoft) + (100% - var(--asoft)) * 0.66), rgba(0,0,0,0.1) calc(var(--asoft) + (100% - var(--asoft)) * 0.88), transparent 100%),
+        radial-gradient(ellipse var(--brx) var(--bry) at var(--bx) var(--by), #000 55%, rgba(0,0,0,0.8) 70%, rgba(0,0,0,0.4) 85%, rgba(0,0,0,0.1) 95%, transparent 100%),
+        radial-gradient(circle var(--t1r) at var(--t1x) var(--t1y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%),
+        radial-gradient(circle var(--t2r) at var(--t2x) var(--t2y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%),
+        radial-gradient(circle var(--t3r) at var(--t3x) var(--t3y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%),
+        radial-gradient(circle var(--t4r) at var(--t4x) var(--t4y), #000 40%, rgba(0,0,0,0.5) 70%, transparent 100%);
     }
 
     main {
@@ -187,6 +200,11 @@
       var a = { x: target.x, y: target.y };
       var b = { x: w * 0.3, y: h * 0.3 };
       var r = radius();
+      var last = { x: target.x, y: target.y, t: 0 };
+      var speed = 0;       // smoothed pointer speed, px/s
+      var dwell = 0;       // seconds the pointer has been still
+      var open = 1;        // current size multiplier of the pointer lens
+      var trail = [];      // recent lens positions, newest first
 
       function radius() {
         // Mirrors --r: clamp(130px, 24vmin, 320px).
@@ -210,6 +228,30 @@
 
       function tick(now) {
         var t = (now || 0) / 1000;
+        var dt = Math.min(t - last.t, 0.1) || 0.016;
+        last.t = t;
+
+        // Pointer speed, smoothed so it doesn't flicker frame to frame.
+        var mx = target.x - last.x, my = target.y - last.y;
+        var inst = Math.sqrt(mx * mx + my * my) / dt;
+        last.x = target.x; last.y = target.y;
+        speed += (inst - speed) * 0.2;
+        var rush = Math.min(speed / 1400, 1);
+
+        // Dwell: hold still and the lens first tightens, then swells to fill the screen.
+        // Any real movement snaps it shut.
+        dwell = inst > 30 ? 0 : dwell + dt;
+        var settle = Math.min(dwell / 0.6, 1);
+        var goal;
+        if (dwell < 0.6) {
+          goal = 1 - 0.3 * settle;
+        } else {
+          var full = Math.max(w, h) * 0.8 / r;
+          goal = Math.min(0.7 + (dwell - 0.6) / 7 * (full - 0.7), full);
+        }
+        goal += rush * 0.8;
+        open += (goal - open) * (goal < open ? 0.22 : 0.06);
+
         a.x += (target.x - a.x) * 0.18;
         a.y += (target.y - a.y) * 0.18;
         // The second lens drifts toward the first and settles just short of overlapping it.
@@ -224,10 +266,23 @@
         root.setProperty('--bx', b.x + 'px');
         root.setProperty('--by', b.y + 'px');
         // Each lens slowly swells, shrinks and stretches on its own rhythm.
-        root.setProperty('--arx', r * (1 + 0.22 * Math.sin(t * 0.9)) + 'px');
-        root.setProperty('--ary', r * (1 + 0.22 * Math.sin(t * 1.3 + 1.7)) + 'px');
+        var ra = r * open;
+        root.setProperty('--arx', ra * (1 + 0.22 * Math.sin(t * 0.9)) + 'px');
+        root.setProperty('--ary', ra * (1 + 0.22 * Math.sin(t * 1.3 + 1.7)) + 'px');
         root.setProperty('--brx', r * (1 + 0.22 * Math.sin(t * 0.7 + 3.1)) + 'px');
         root.setProperty('--bry', r * (1 + 0.22 * Math.sin(t * 1.1 + 0.6)) + 'px');
+        // Speed blurs the edge of the pointer lens.
+        root.setProperty('--asoft', (55 - 35 * rush) + '%');
+
+        // Comet tail: small lenses strung along where the pointer just was, sized by speed.
+        trail.unshift({ x: a.x, y: a.y });
+        if (trail.length > 25) trail.pop();
+        for (var i = 1; i <= 4; i++) {
+          var p = trail[Math.min(i * 6, trail.length - 1)];
+          root.setProperty('--t' + i + 'x', p.x + 'px');
+          root.setProperty('--t' + i + 'y', p.y + 'px');
+          root.setProperty('--t' + i + 'r', Math.max(r * 0.5 * rush * (1 - i * 0.18), 0.1) + 'px');
+        }
         requestAnimationFrame(tick);
       }
       tick();
