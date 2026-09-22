@@ -47,10 +47,12 @@
       .layer { background-image: url(bg-900.jpg); }
     }
 
-    /* Two soft lenses tint the photo green. The gradients union by default. */
-    .layer.tint {
-      background: #35D07A;
-      mix-blend-mode: color;
+    /* Two soft lenses cut through the paint to the video underneath. The gradients union by default. */
+    .layer.reel {
+      background: #000;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
       -webkit-mask-image:
         radial-gradient(circle var(--r) at var(--ax) var(--ay), #000 72%, transparent 100%),
         radial-gradient(circle var(--r) at var(--bx) var(--by), #000 72%, transparent 100%);
@@ -115,15 +117,18 @@
       font-weight: 600;
     }
 
+    .layer.reel.next { display: none; }
+
     @media (prefers-reduced-motion: reduce) {
-      .layer.tint { display: none; }
+      .layer.reel { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="field" aria-hidden="true">
     <div class="layer photo"></div>
-    <div class="layer tint"></div>
+    <video class="layer reel" muted playsinline preload="auto"></video>
+    <video class="layer reel next" muted playsinline preload="auto"></video>
   </div>
 
   <main>
@@ -138,6 +143,57 @@
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
       var root = document.documentElement.style;
+
+      // Dance clips play underneath the paint in a fresh shuffled order on every visit.
+      (function reel() {
+        var reels = document.querySelectorAll('.layer.reel');
+        var current = reels[0], next = reels[1];
+        var queue = [], list = [];
+
+        function shuffled() {
+          var a = list.slice();
+          for (var i = a.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var t = a[i]; a[i] = a[j]; a[j] = t;
+          }
+          return a;
+        }
+
+        function pick() {
+          if (!queue.length) queue = shuffled();
+          return 'clips/' + queue.pop().file;
+        }
+
+        function play(el) {
+          var p = el.play();
+          if (p && p.catch) p.catch(function () {
+            // Autoplay was blocked; start on the first touch or click instead.
+            window.addEventListener('pointerdown', function () { el.play(); }, { once: true });
+          });
+        }
+
+        function advance() {
+          current.classList.add('next');
+          next.classList.remove('next');
+          var t = current; current = next; next = t;
+          play(current);
+          next.src = pick();
+          next.load();
+          current.onended = advance;
+        }
+
+        fetch('clips/list.json')
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            list = data;
+            current.src = pick();
+            next.src = pick();
+            next.load();
+            current.onended = advance;
+            play(current);
+          })
+          .catch(function () {});
+      })();
       var w = window.innerWidth, h = window.innerHeight;
       var target = { x: w * 0.62, y: h * 0.38 };
       var a = { x: target.x, y: target.y };
