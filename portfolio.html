@@ -64,20 +64,9 @@
       border-radius: 2px;
     }
 
-    .home {
-      position: fixed;
-      top: var(--gutter);
-      left: var(--gutter);
-      z-index: 2;
-      font-size: clamp(1rem, 1.4vw, 1.3rem);
-    }
-
     main {
-      margin: 0 auto;
       padding: var(--gutter);
-      padding-top: calc(var(--gutter) * 2 + 1.5rem);
       max-width: 1100px;
-      text-align: center;
     }
 
     h1 {
@@ -92,7 +81,7 @@
     /* A faint smoked-glass pane takes the edge off the paint so the copy stays legible;
        the neon halo on every line does the rest. */
     .project {
-      margin: clamp(40px, 6vw, 96px) auto 0;
+      margin-top: clamp(28px, 4vw, 56px);
       max-width: 860px;
       padding: clamp(20px, 3vw, 40px);
       border-radius: 14px;
@@ -108,7 +97,6 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: center;
       gap: 6px 16px;
     }
 
@@ -145,7 +133,7 @@
     }
 
     .project header a {
-      flex-basis: 100%;
+      margin-left: auto;
       font-size: 0.9rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -189,7 +177,7 @@
     @media (min-width: 640px) { .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
     .summary {
-      margin: 24px auto 0;
+      margin-top: 24px;
       max-width: 62ch;
       font-size: 1.05rem;
       font-weight: 600;
@@ -198,8 +186,8 @@
     }
 
     .highlights {
-      margin: 18px auto 0;
-      max-width: 56ch;
+      margin-top: 18px;
+      max-width: 62ch;
       padding: 0;
       list-style: none;
       display: grid;
@@ -216,7 +204,6 @@
       list-style: none;
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       gap: 6px;
     }
 
@@ -235,7 +222,6 @@
       margin-top: 20px;
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       gap: 16px;
       font-size: 0.85rem;
       letter-spacing: 0.04em;
@@ -250,7 +236,6 @@
       margin-top: clamp(48px, 8vw, 112px);
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
       gap: 0 0.7em;
       font-size: clamp(1.1rem, 1.6vw, 1.5rem);
       line-height: 1.55;
@@ -275,8 +260,6 @@
 </head>
 <body>
   <div class="photo a" aria-hidden="true"></div>
-
-  <a class="home" href="./">Empathy Machine</a>
 
   <main>
     <h1>Portfolio</h1>
