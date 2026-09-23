@@ -48,11 +48,16 @@
     .layer {
       position: absolute;
       inset: 0;
-      background: url(bg-1600.jpg) center / cover no-repeat;
+      background: #C3CBE6 center / cover no-repeat;
     }
 
+    /* Two fluid-paint photos; one is chosen at random on each visit. */
+    .photo.a { background-image: url(bg-a-1600.jpg); }
+    .photo.b { background-image: url(bg-b-1600.jpg); background-color: #E6A9B6; }
+
     @media (max-width: 700px) {
-      .layer { background-image: url(bg-900.jpg); }
+      .photo.a { background-image: url(bg-a-900.jpg); }
+      .photo.b { background-image: url(bg-b-900.jpg); }
     }
 
     /* Lenses cut through the paint to the video underneath: the pointer lens, its follower,
@@ -143,7 +148,7 @@
 </head>
 <body>
   <div class="field" aria-hidden="true">
-    <div class="layer photo"></div>
+    <div class="layer photo a"></div>
     <video class="layer reel" muted playsinline preload="auto"></video>
     <video class="layer reel next" muted playsinline preload="auto"></video>
   </div>
@@ -153,6 +158,11 @@
     <p><a href="mailto:contact@empathymachine.online">contact@empathymachine.online</a></p>
   </main>
 
+
+  <script>
+    // Flip a coin for which paint photo hangs behind the lenses this visit.
+    document.querySelector('.photo').className = 'layer photo ' + (Math.random() < 0.5 ? 'a' : 'b');
+  </script>
 
   <script>
     (function () {
