@@ -327,12 +327,13 @@
         root.setProperty('--ay', a.y + 'px');
         root.setProperty('--bx', b.x + 'px');
         root.setProperty('--by', b.y + 'px');
-        // Each lens slowly swells, shrinks and stretches on its own rhythm.
-        var ra = r * open;
-        root.setProperty('--arx', ra * (1 + 0.22 * Math.sin(t * 0.9)) + 'px');
-        root.setProperty('--ary', ra * (1 + 0.22 * Math.sin(t * 1.3 + 1.7)) + 'px');
-        root.setProperty('--brx', r * (1 + 0.22 * Math.sin(t * 0.7 + 3.1)) + 'px');
-        root.setProperty('--bry', r * (1 + 0.22 * Math.sin(t * 1.1 + 0.6)) + 'px');
+        // Each lens slowly swells and shrinks on its own rhythm, always staying a circle.
+        var ra = r * open * (1 + 0.22 * Math.sin(t * 0.9));
+        var rb = r * (1 + 0.22 * Math.sin(t * 0.7 + 3.1));
+        root.setProperty('--arx', ra + 'px');
+        root.setProperty('--ary', ra + 'px');
+        root.setProperty('--brx', rb + 'px');
+        root.setProperty('--bry', rb + 'px');
         // Speed blurs the edge of the pointer lens.
         root.setProperty('--asoft', (55 - 35 * rush) + '%');
 
