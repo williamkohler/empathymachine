@@ -18,9 +18,8 @@
               0 0 32px rgba(57, 255, 20, 0.75), 0 0 64px rgba(57, 255, 20, 0.45), 0 0 110px rgba(57, 255, 20, 0.25),
               var(--halo);
       --ink: #eaffe4;
-      --muted: rgba(234, 255, 228, 0.72);
-      --panel: rgba(8, 14, 10, 0.78);
-      --line: rgba(57, 255, 20, 0.35);
+      --muted: #d6ffcc;
+      --line: rgba(57, 255, 20, 0.55);
       --gutter: clamp(24px, 5vw, 72px);
     }
 
@@ -74,9 +73,11 @@
     }
 
     main {
+      margin: 0 auto;
       padding: var(--gutter);
       padding-top: calc(var(--gutter) * 2 + 1.5rem);
       max-width: 1100px;
+      text-align: center;
     }
 
     h1 {
@@ -88,24 +89,20 @@
       text-shadow: var(--sign);
     }
 
-    /* Each project sits on a dark pane so the copy stays readable over the paint. */
+    /* Copy sits straight on the paint, so every line carries the neon halo to stay legible. */
     .project {
-      margin-top: clamp(28px, 4vw, 56px);
-      padding: clamp(20px, 3vw, 40px);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--panel);
-      -webkit-backdrop-filter: blur(14px);
-      backdrop-filter: blur(14px);
+      margin: clamp(40px, 6vw, 96px) auto 0;
+      max-width: 860px;
       color: var(--ink);
       text-transform: none;
-      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 24px 60px rgba(0, 0, 0, 0.35);
+      text-shadow: var(--glow);
     }
 
     .project header {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
       gap: 6px 16px;
     }
 
@@ -142,7 +139,7 @@
     }
 
     .project header a {
-      margin-left: auto;
+      flex-basis: 100%;
       font-size: 0.9rem;
       letter-spacing: 0.04em;
       text-transform: uppercase;
@@ -165,6 +162,7 @@
       border: 1px solid var(--line);
       border-radius: 10px;
       background: #000;
+      box-shadow: 0 0 12px rgba(57, 255, 20, 0.35), 0 16px 40px rgba(0, 0, 0, 0.35);
     }
 
     .shots img {
@@ -185,34 +183,25 @@
     @media (min-width: 640px) { .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
     .summary {
-      margin-top: 20px;
-      font-size: 0.95rem;
+      margin: 24px auto 0;
+      max-width: 62ch;
+      font-size: 1.05rem;
+      font-weight: 600;
       line-height: 1.65;
       color: var(--muted);
     }
 
     .highlights {
-      margin-top: 18px;
+      margin: 18px auto 0;
+      max-width: 56ch;
       padding: 0;
       list-style: none;
       display: grid;
-      gap: 8px;
-      font-size: 0.9rem;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 600;
       line-height: 1.55;
       color: var(--muted);
-    }
-
-    .highlights li { display: flex; gap: 12px; }
-
-    .highlights li::before {
-      content: "";
-      flex-shrink: 0;
-      width: 6px;
-      height: 6px;
-      margin-top: 0.55em;
-      border-radius: 50%;
-      background: var(--neon);
-      box-shadow: 0 0 6px var(--neon);
     }
 
     .tech {
@@ -221,6 +210,7 @@
       list-style: none;
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 6px;
     }
 
@@ -232,12 +222,14 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--muted);
+      text-shadow: none;
     }
 
     .links {
       margin-top: 20px;
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 16px;
       font-size: 0.85rem;
       letter-spacing: 0.04em;
@@ -249,9 +241,10 @@
     .links .private { color: var(--muted); font-weight: 400; }
 
     nav {
-      margin-top: clamp(36px, 6vw, 80px);
+      margin-top: clamp(48px, 8vw, 112px);
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 0 0.7em;
       font-size: clamp(1.1rem, 1.6vw, 1.5rem);
       line-height: 1.55;
